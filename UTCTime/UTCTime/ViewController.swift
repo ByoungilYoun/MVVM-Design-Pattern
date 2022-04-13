@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class ViewController: UIViewController {
   
@@ -43,17 +45,16 @@ class ViewController: UIViewController {
   
   let viewModel = ViewModel()
   
+  let disposeBag = DisposeBag()
+  
   //MARK: - LifeCycle
   override func viewDidLoad() {
     super.viewDidLoad()
     setUI()
     
-    viewModel.onUpdated = { [weak self] in
-      DispatchQueue.main.async {
-        self?.dateTimeLabel.text =  self?.viewModel.dateTimeString
-      }
-    }
-
+    viewModel.dateTimeString
+      .bind(to: dateTimeLabel.rx.text)
+      .disposed(by: self.disposeBag)
     
     viewModel.reload()
     
