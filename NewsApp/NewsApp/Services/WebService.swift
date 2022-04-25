@@ -7,20 +7,22 @@
 
 import Foundation
 
-struct Article {
-  
-}
-
 class WebService {
   
-  func getArticles(url : URL, completionHandler : @escaping ([Any]?) -> ()) {
+  func getArticles(url : URL, completionHandler : @escaping ([Articles]?) -> ()) {
     
     URLSession.shared.dataTask(with: url) { data, response, error  in
       if let error = error {
         print(error.localizedDescription)
         completionHandler(nil)
       } else if let data = data {
-        print(data)
+        let articleList = try? JSONDecoder().decode(ArticleList.self, from: data)
+        
+        if let articleList = articleList  {
+          completionHandler(articleList.articles)
+        }
+        
+        print(articleList?.articles)
       }
     }.resume()
   }
