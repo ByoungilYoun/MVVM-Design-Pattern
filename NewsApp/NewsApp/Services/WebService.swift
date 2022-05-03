@@ -22,7 +22,6 @@ class WebService {
           completionHandler(articleList.articles)
         }
         
-        print(articleList?.articles)
       }
     }.resume()
   }
