@@ -10,6 +10,7 @@ import UIKit
 class OrdersTableViewController : UITableViewController {
   
   //MARK: - Properties
+  var orderListViewModel = OrderListViewModel()
   
   //MARK: - Lifecycle
   override func viewDidLoad() {
@@ -30,13 +31,34 @@ class OrdersTableViewController : UITableViewController {
     
     let resource = Resource<[Order]>(url: coffeeOrdersURL)
     
-    WebService.shared.load(resource: resource) { result in
+    WebService.shared.load(resource: resource) { [weak self] result in
       switch result {
       case .success(let orders) :
-        print(orders)
+        self?.orderListViewModel.ordersViewModel = orders.map(OrderViewModel.init)
+        self?.tableView.reloadData()
       case .failure(let error) :
         print(error)
       }
     }
+  }
+  
+  // numberOfSections
+  override func numberOfSections(in tableView: UITableView) -> Int {
+    return 1
+  }
+
+  // numberOfRowsInSection
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return self.orderListViewModel.ordersViewModel.count
+  }
+  
+  // cellForRowAt
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let viewModel = self.orderListViewModel.orderViewModel(at: indexPath.row)
+    
+    let cell = tableView.dequeueReusableCell(withIdentifier: "OrderTableViewCell", for: indexPath)
+    cell.textLabel?.text = viewModel.type
+    cell.detailTextLabel?.text = viewModel.size
+    return cell
   }
 }
