@@ -9,12 +9,23 @@ import Foundation
 
 struct Resource<T: Codable> {
   let url : URL
+  var httpMethod : HTTPMethod = .get
+  var body : Data? = nil
+  
+  init(url : URL) {
+    self.url = url
+  }
 }
 
 enum NetworkError : Error {
   case decodingError
   case domainError
   case urlError
+}
+
+enum HTTPMethod : String {
+  case get = "GET"
+  case post = "POST"
 }
 
 
