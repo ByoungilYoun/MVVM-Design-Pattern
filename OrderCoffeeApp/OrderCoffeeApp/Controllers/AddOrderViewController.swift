@@ -35,6 +35,9 @@ class AddOrderViewController : UIViewController, UITableViewDelegate, UITableVie
     
   }
   
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    self.view.endEditing(true)
+  }
   
   //MARK: - @objc func
   @IBAction func save() {
@@ -53,6 +56,18 @@ class AddOrderViewController : UIViewController, UITableViewDelegate, UITableVie
     self.viewModel.selectedSize = selectedSize
     self.viewModel.selectedType = self.viewModel.types[indexPath.row]
     
+    WebService().load(resource: Order.create(vm: self.viewModel)) { result in
+      switch result {
+      case .success(let order) :
+        print(order)
+      case .failure(let error) :
+        print(error)
+      }
+    }
+  }
+  
+  @IBAction func close() {
+    self.dismiss(animated: true)
   }
   
   //MARK: - UITableViewDataSource
