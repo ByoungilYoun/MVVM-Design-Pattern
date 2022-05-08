@@ -7,6 +7,11 @@
 
 import UIKit
 
+protocol AddCoffeeOrderDelegate {
+  func addCoffeeOrderViewControllerDidSave(order : Order, controller : UIViewController)
+  func addCoffeeOrderViewControllerDidClose(controller : UIViewController)
+}
+
 class AddOrderViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
   
   //MARK: - Properties
@@ -16,6 +21,8 @@ class AddOrderViewController : UIViewController, UITableViewDelegate, UITableVie
   
   private var viewModel = AddCoffeeOrderViewModel()
   private var coffeeSizesSegmentedControl : UISegmentedControl!
+  
+  var delegate : AddCoffeeOrderDelegate?
   
   //MARK: - LifeCycle
   override func viewDidLoad() {
@@ -59,7 +66,13 @@ class AddOrderViewController : UIViewController, UITableViewDelegate, UITableVie
     WebService().load(resource: Order.create(vm: self.viewModel)) { result in
       switch result {
       case .success(let order) :
-        print(order)
+        
+        if let order = order, let delegate = self.delegate {
+          DispatchQueue.main.async {
+            delegate.addCoffeeOrderViewControllerDidSave(order: order, controller: self)
+          }
+        }
+        
       case .failure(let error) :
         print(error)
       }
@@ -67,7 +80,9 @@ class AddOrderViewController : UIViewController, UITableViewDelegate, UITableVie
   }
   
   @IBAction func close() {
-    self.dismiss(animated: true)
+    if let delegate = self.delegate {
+      delegate.addCoffeeOrderViewControllerDidClose(controller: self)
+    }
   }
   
   //MARK: - UITableViewDataSource

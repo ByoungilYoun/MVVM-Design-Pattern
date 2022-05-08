@@ -36,6 +36,16 @@ class OrdersTableViewController : UITableViewController {
     }
   }
   
+  // prepare
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    guard let navC = segue.destination as? UINavigationController,
+          let addCoffeeOrderViewController = navC.viewControllers.first as? AddOrderViewController else {
+      fatalError("Error performing segue")
+    }
+    
+    addCoffeeOrderViewController.delegate = self
+  }
+  
   // numberOfSections
   override func numberOfSections(in tableView: UITableView) -> Int {
     return 1
@@ -54,5 +64,21 @@ class OrdersTableViewController : UITableViewController {
     cell.textLabel?.text = viewModel.type
     cell.detailTextLabel?.text = viewModel.size
     return cell
+  }
+}
+
+//MARK: - AddCoffeeOrderDelegate
+
+extension OrdersTableViewController : AddCoffeeOrderDelegate {
+  func addCoffeeOrderViewControllerDidSave(order: Order, controller: UIViewController) {
+    controller.dismiss(animated: true)
+    
+    let orderViewModel = OrderViewModel(order: order)
+    self.orderListViewModel.ordersViewModel.append(orderViewModel)
+    self.tableView.insertRows(at: [IndexPath.init(row: self.orderListViewModel.ordersViewModel.count - 1, section: 0)], with: .automatic)
+  }
+  
+  func addCoffeeOrderViewControllerDidClose(controller: UIViewController) {
+    controller.dismiss(animated: true)
   }
 }
