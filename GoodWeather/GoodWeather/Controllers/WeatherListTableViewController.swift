@@ -9,23 +9,15 @@ import UIKit
 
 class WeatherListTableViewController : UITableViewController {
   
+  //MARK: - Properties
+  private var weatherListViewModel = WeatherListViewModel()
+  
   //MARK: - LifeCycle
   override func viewDidLoad() {
     super.viewDidLoad()
     self.navigationController?.navigationBar.prefersLargeTitles = true
     
-    /*
-    let resource = Resource<WeatherResponse>(url: URL(string: "https://api.openweathermap.org/data/2.5/weather?q=houston&appid=ca3f00f4a95ffab57dab06a82a990720")!) { data in
-      
-      return try? JSONDecoder().decode(WeatherResponse.self, from: data)
-    }
-    
-    WebService().load(resource: resource) { weatherResponse in
-      if let weatherResponse = weatherResponse {
-        print(weatherResponse)
-      }
-    }
-     */
+
   }
   
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -52,14 +44,15 @@ class WeatherListTableViewController : UITableViewController {
   
   //MARK: - numberOfRowsInSection
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return 1
+    return weatherListViewModel.numberOfRows(section)
   }
   
   //MARK: - cellForRowAt
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherTableViewCell.identifier, for: indexPath) as? WeatherTableViewCell else { return UITableViewCell() }
-    cell.cityNameLabel.text = "Huston"
-    cell.temperatureLabel.text = "70°"
+    
+    let weatherViewModel = weatherListViewModel.modelAt(indexPath.row)
+    cell.configure(weatherViewModel)
     return cell
   }
   
@@ -72,6 +65,7 @@ class WeatherListTableViewController : UITableViewController {
   //MARK: - Extension AddWeatherDelegate
 extension WeatherListTableViewController : AddWeatherDelegate {
   func addWeatherDidSave(viewModel: WeatherViewModel) {
-    print(viewModel)
+    weatherListViewModel.addWeatherViewModel(viewModel)
+    self.tableView.reloadData()
   }
 }

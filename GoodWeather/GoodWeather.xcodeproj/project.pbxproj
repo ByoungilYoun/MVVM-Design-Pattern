@@ -21,6 +21,7 @@
 		0FB5B5E628369B8700803B84 /* AddWeatherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB5B5E528369B8700803B84 /* AddWeatherViewModel.swift */; };
 		0FB5B5E928369BDA00803B84 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB5B5E828369BDA00803B84 /* Constants.swift */; };
 		0FB5B5EE28369C7000803B84 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB5B5ED28369C7000803B84 /* String+Extensions.swift */; };
+		0FE917F12837F46A00CB52E4 /* Double+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE917F02837F46A00CB52E4 /* Double+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		0FB5B5E528369B8700803B84 /* AddWeatherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWeatherViewModel.swift; sourceTree = "<group>"; };
 		0FB5B5E828369BDA00803B84 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0FB5B5ED28369C7000803B84 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
+		0FE917F02837F46A00CB52E4 /* Double+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				0FB5B5ED28369C7000803B84 /* String+Extensions.swift */,
+				0FE917F02837F46A00CB52E4 /* Double+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -218,6 +221,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FE917F12837F46A00CB52E4 /* Double+Extensions.swift in Sources */,
 				0FB5B5EE28369C7000803B84 /* String+Extensions.swift in Sources */,
 				0F4A6ACE282AB4620081805E /* WebService.swift in Sources */,
 				0FB5B5E628369B8700803B84 /* AddWeatherViewModel.swift in Sources */,
