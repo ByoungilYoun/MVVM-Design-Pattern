@@ -9,7 +9,7 @@ import Foundation
 
 class AddWeatherViewModel {
   
-  func addWeather(for city : String, @escaping (WeatherViewModel) -> Void) {
+  func addWeather(for city : String, completion : @escaping (WeatherViewModel) -> Void) {
     
     let weatherURL = Constants.Urls.urlForWeatherByCity(city: city)
     
@@ -21,7 +21,7 @@ class AddWeatherViewModel {
     WebService().load(resource: weatherResource) { result in
       
       if let weatherResource = result {
-          let viewModel = WeatherViewModel(weatherResource)
+        let viewModel = WeatherViewModel(weather: weatherResource)
           completion(viewModel)
       }
     }
