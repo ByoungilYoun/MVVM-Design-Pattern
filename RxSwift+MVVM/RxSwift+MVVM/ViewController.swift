@@ -11,18 +11,21 @@ import SnapKit
 class ViewController: UIViewController {
   
   //MARK: - Properties
+  let MEMBER_LIST_URL = "https://my.api.mockaroo.com/members_with_avatar.json?key=44ce18f0"
+  
   private let timerLabel : UILabel = {
     let label = UILabel()
     label.textColor = .black
     return label
   }()
   
-  let loadButton : UIButton = {
+  lazy var loadButton : UIButton = {
     let button = UIButton()
     button.setTitle("Load", for: .normal)
     button.backgroundColor = .black
     button.setTitleColor(UIColor.white, for: .normal)
     button.titleLabel?.textColor = .black
+    button.addTarget(self, action: #selector(onLoad), for: .touchUpInside)
     return button
   }()
 
@@ -33,9 +36,14 @@ class ViewController: UIViewController {
     return view
   }()
   
+  let activityIndicator = UIActivityIndicatorView()
+  
   //MARK: - LifeCycle
   override func viewDidLoad() {
     super.viewDidLoad()
+    Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+      self?.timerLabel.text = "\(Date().timeIntervalSince1970)"
+    }
     layout()
   }
 
@@ -63,6 +71,28 @@ class ViewController: UIViewController {
       $0.leading.trailing.equalTo(timerLabel)
       $0.bottom.equalTo(view.safeAreaLayoutGuide)
     }
+  }
+  
+  private func setVisibleWithAnimation(_ v: UIView?, _ s: Bool) {
+      guard let v = v else { return }
+      UIView.animate(withDuration: 0.3, animations: { [weak v] in
+          v?.isHidden = !s
+      }, completion: { [weak self] _ in
+          self?.view.layoutIfNeeded()
+      })
+  }
+
+  //MARK: - @objc func
+  @IBAction func onLoad() {
+      editView.text = ""
+      setVisibleWithAnimation(activityIndicator, true)
+
+      let url = URL(string: MEMBER_LIST_URL)!
+      let data = try! Data(contentsOf: url)
+      let json = String(data: data, encoding: .utf8)
+      self.editView.text = json
+      
+      self.setVisibleWithAnimation(self.activityIndicator, false)
   }
 }
 
