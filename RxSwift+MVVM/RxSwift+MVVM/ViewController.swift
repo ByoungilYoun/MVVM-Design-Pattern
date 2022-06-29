@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class ViewController: UIViewController {
   
@@ -87,14 +88,28 @@ class ViewController: UIViewController {
       })
   }
   
-  func downloadJson(_ url : String, _ completion : @escaping (String?) -> Void) {
-    DispatchQueue.global().async {
-      let url = URL(string: url)!
-      let data = try! Data(contentsOf: url)
-      let json = String(data: data, encoding: .utf8)
-      DispatchQueue.main.async {
-        completion(json)
+//  func downloadJson(_ url : String, _ completion : @escaping (String?) -> Void) {
+//    DispatchQueue.global().async {
+//      let url = URL(string: url)!
+//      let data = try! Data(contentsOf: url)
+//      let json = String(data: data, encoding: .utf8)
+//      DispatchQueue.main.async {
+//        completion(json)
+//      }
+//    }
+//  }
+  
+  func downloadJson(_ url: String) -> Observable<String?>{
+    return Observable.create() { f in
+      DispatchQueue.global().async {
+        let url = URL(string: url)!
+        let data = try! Data(contentsOf: url)
+        let json = String(data: data, encoding: .utf8)
+        DispatchQueue.main.async {
+          f.onNext(json)
+        }
       }
+      return Disposables.create()
     }
   }
 
@@ -103,10 +118,24 @@ class ViewController: UIViewController {
       editView.text = ""
       setVisibleWithAnimation(activityIndicator, true)
 
-    downloadJson(MEMBER_LIST_URL) { json in
-      self.editView.text = json
-      self.setVisibleWithAnimation(self.activityIndicator, false)
-    }
+//    downloadJson(MEMBER_LIST_URL) { json in
+//      self.editView.text = json
+//      self.setVisibleWithAnimation(self.activityIndicator, false)
+//    }
+    
+    // 비동기로 생기는 결과값을 completion 클로저로 전달하는게 아니라 리턴값으로 전달하기 위해서 만들어진 utility 이다.
+    downloadJson(MEMBER_LIST_URL)
+      .subscribe { event in
+        switch event {
+        case .next(let json) :
+          self.editView.text = json
+          self.setVisibleWithAnimation(self.activityIndicator, false)
+        case .error(let error) :
+          break
+        case .completed :
+          break
+        }
+      }
   }
 }
 
