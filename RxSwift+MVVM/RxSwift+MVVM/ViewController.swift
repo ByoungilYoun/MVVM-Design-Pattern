@@ -99,17 +99,50 @@ class ViewController: UIViewController {
 //    }
 //  }
   
-  func downloadJson(_ url: String) -> Observable<String?>{
-    return Observable.create() { f in
-      DispatchQueue.global().async {
-        let url = URL(string: url)!
-        let data = try! Data(contentsOf: url)
-        let json = String(data: data, encoding: .utf8)
-        DispatchQueue.main.async {
-          f.onNext(json)
+//  func downloadJson(_ url: String) -> Observable<String?>{   // 1. 비동기로 생기는 데이터를 Observable 로 감싸서 리턴하는 방법
+//    return Observable.create() { f in
+//      DispatchQueue.global().async {
+//        let url = URL(string: url)!
+//        let data = try! Data(contentsOf: url)
+//        let json = String(data: data, encoding: .utf8)
+//        DispatchQueue.main.async {
+//          f.onNext(json)
+//          f.onCompleted() // 이거 한줄 넣어줌으로써 밑에 약한 참조를 안해줘도 강한순환참조를 방지할 수 있다.
+//        }
+//      }
+//      return Disposables.create()
+//    }
+//  }
+  
+  
+  // Observable 의 생명주기
+  // 1. Observable.create
+  // 2. Subscribe
+  // 3. onNext
+  
+  // ---- 끝남----
+  // 4. onCompleted / onError
+  // 5. Disposed
+  
+  func downloadJson(_ url : String) -> Observable<String?> { // 1. 비동기로 생기는 데이터를 Observable 로 감싸서 리턴하는 방법
+    return Observable.create() { emitter in
+      let url = URL(string: url)!
+      let task = URLSession.shared.dataTask(with: url) { data, _, error in
+        guard error == nil else {
+          emitter.onError(error!)
+          return
         }
+        
+        if let data = data, let json = String(data: data, encoding: .utf8) {
+          emitter.onNext(json)
+        }
+        emitter.onCompleted()
       }
-      return Disposables.create()
+      task.resume()
+      
+      return Disposables.create() {
+        task.cancel()
+      }
     }
   }
 
@@ -117,20 +150,18 @@ class ViewController: UIViewController {
   @objc func onLoad() {
       editView.text = ""
       setVisibleWithAnimation(activityIndicator, true)
-
-//    downloadJson(MEMBER_LIST_URL) { json in
-//      self.editView.text = json
-//      self.setVisibleWithAnimation(self.activityIndicator, false)
-//    }
     
     // 비동기로 생기는 결과값을 completion 클로저로 전달하는게 아니라 리턴값으로 전달하기 위해서 만들어진 utility 이다.
-    downloadJson(MEMBER_LIST_URL)
+    _ = downloadJson(MEMBER_LIST_URL)   // 2. Observable 로 오는 데이터를 받아서 처리하는 방법
+      .debug()
       .subscribe { event in
         switch event {
         case .next(let json) :
-          self.editView.text = json
-          self.setVisibleWithAnimation(self.activityIndicator, false)
-        case .error(let error) :
+          DispatchQueue.main.async {
+            self.editView.text = json
+            self.setVisibleWithAnimation(self.activityIndicator, false)
+          }
+        case .error:
           break
         case .completed :
           break
