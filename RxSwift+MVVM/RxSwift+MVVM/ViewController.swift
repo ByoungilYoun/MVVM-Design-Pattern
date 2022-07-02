@@ -152,21 +152,29 @@ class ViewController: UIViewController {
       setVisibleWithAnimation(activityIndicator, true)
     
     // 비동기로 생기는 결과값을 completion 클로저로 전달하는게 아니라 리턴값으로 전달하기 위해서 만들어진 utility 이다.
-    _ = downloadJson(MEMBER_LIST_URL)   // 2. Observable 로 오는 데이터를 받아서 처리하는 방법
-      .debug()
-      .subscribe { event in
-        switch event {
-        case .next(let json) :
-          DispatchQueue.main.async {
-            self.editView.text = json
-            self.setVisibleWithAnimation(self.activityIndicator, false)
-          }
-        case .error:
-          break
-        case .completed :
-          break
-        }
-      }
+//    _ = downloadJson(MEMBER_LIST_URL)   // 2. Observable 로 오는 데이터를 받아서 처리하는 방법
+//      .debug()
+//      .subscribe { event in
+//        switch event {
+//        case .next(let json) :
+//          DispatchQueue.main.async {
+//            self.editView.text = json
+//            self.setVisibleWithAnimation(self.activityIndicator, false)
+//          }
+//        case .error:
+//          break
+//        case .completed :
+//          break
+//        }
+//      }
+    
+    _ = downloadJson(MEMBER_LIST_URL)
+      .observe(on: MainScheduler.instance) // dispatchqueue.main 을 하지 않고 대신, 이후에는 계속 메인 스레드에서 동작
+      .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .default)) // 이건 맨 처음 observable 에만 동작 
+      .subscribe(onNext : { json in
+        self.editView.text = json
+        self.setVisibleWithAnimation(self.activityIndicator, false)
+      })
   }
 }
 
