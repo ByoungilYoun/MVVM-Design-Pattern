@@ -14,6 +14,8 @@ class ViewController: UIViewController {
   //MARK: - Properties
   let MEMBER_LIST_URL = "https://my.api.mockaroo.com/members_with_avatar.json?key=44ce18f0"
   
+  let disposeBag = DisposeBag()
+  
   private let timerLabel : UILabel = {
     let label = UILabel()
     label.textColor = .black
@@ -124,7 +126,7 @@ class ViewController: UIViewController {
   // 4. onCompleted / onError
   // 5. Disposed
   
-  func downloadJson(_ url : String) -> Observable<String?> { // 1. 비동기로 생기는 데이터를 Observable 로 감싸서 리턴하는 방법
+  func downloadJson(_ url : String) -> Observable<String> { // 1. 비동기로 생기는 데이터를 Observable 로 감싸서 리턴하는 방법
     return Observable.create() { emitter in
       let url = URL(string: url)!
       let task = URLSession.shared.dataTask(with: url) { data, _, error in
@@ -168,13 +170,18 @@ class ViewController: UIViewController {
 //        }
 //      }
     
-    _ = downloadJson(MEMBER_LIST_URL)
+    let jsonObservable = downloadJson(MEMBER_LIST_URL)
+    let helloObservable = Observable.just("Hello World")
+    
+    // zip 알아보기 -> 두개의 옵저버블을 합쳐서(쌍을 이뤄서), 한개의 옵저버블의 값이 없으면 쌍을 못이뤄서 값을 보내주지 못한다.
+    _ = Observable.zip(jsonObservable, helloObservable) { $1 + "\n" + $0 }
       .observe(on: MainScheduler.instance) // dispatchqueue.main 을 하지 않고 대신, 이후에는 계속 메인 스레드에서 동작
-      .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .default)) // 이건 맨 처음 observable 에만 동작 
+      .subscribe(on: ConcurrentDispatchQueueScheduler(qos: .default)) // 이건 맨 처음 observable 에만 동작
       .subscribe(onNext : { json in
         self.editView.text = json
         self.setVisibleWithAnimation(self.activityIndicator, false)
       })
+      .disposed(by: disposeBag)
   }
 }
 
