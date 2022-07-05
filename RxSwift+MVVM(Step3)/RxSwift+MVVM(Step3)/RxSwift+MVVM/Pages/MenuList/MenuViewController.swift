@@ -9,6 +9,11 @@
 import UIKit
 
 class MenuViewController: UIViewController {
+  
+    //MARK: - Property
+    
+    let viewModel = MenuListViewModel()
+  
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
@@ -48,15 +53,16 @@ class MenuViewController: UIViewController {
 
 extension MenuViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
+      return viewModel.menus.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
 
-        cell.title.text = "MENU \(indexPath.row)"
-        cell.price.text = "\(indexPath.row * 100)"
-        cell.count.text = "0"
+      let menu = viewModel.menus[indexPath.row]
+      cell.title.text = menu.name
+      cell.price.text = "\(menu.price)"
+      cell.count.text = "\(menu.count)"
 
         return cell
     }
