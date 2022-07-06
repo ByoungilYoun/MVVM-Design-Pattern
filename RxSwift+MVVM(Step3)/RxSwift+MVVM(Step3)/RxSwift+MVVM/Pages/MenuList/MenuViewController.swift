@@ -7,17 +7,40 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class MenuViewController: UIViewController {
   
     //MARK: - Property
+    let cellId = "MenuItemTableViewCell"
     
     let viewModel = MenuListViewModel()
+  
+    var disposeBag = DisposeBag()
   
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+     
+      viewModel.menuObservable
+        .observeOn(MainScheduler.instance)
+        .bind(to: tableView.rx.items(cellIdentifier: cellId, cellType: MenuItemTableViewCell.self)) { index, item, cell in
+          cell.title.text = item.name
+          cell.price.text = "\(item.price)"
+          cell.count.text = "\(item.count)"
+        }.disposed(by: disposeBag)
+      
+      viewModel.itemsCount
+        .map { "\($0)" }
+        .bind(to: itemCountLabel.rx.text)
+        .disposed(by: disposeBag)
+      
+      viewModel.totalPrice
+        .map { $0.currencyKR() }
+        .bind(to: totalPrice.rx.text)
+        .disposed(by: disposeBag)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -47,23 +70,24 @@ class MenuViewController: UIViewController {
     @IBAction func onOrder(_ sender: UIButton) {
         // TODO: no selection
         // showAlert("Order Fail", "No Orders")
-        performSegue(withIdentifier: "OrderViewController", sender: nil)
+//        performSegue(withIdentifier: "OrderViewController", sender: nil)
+
+      viewModel.menuObservable.onNext([
+        Menu(name: "changed", price: 100, count: 2)
+      ])
     }
 }
 
-extension MenuViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-      return viewModel.menus.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
-
-      let menu = viewModel.menus[indexPath.row]
-      cell.title.text = menu.name
-      cell.price.text = "\(menu.price)"
-      cell.count.text = "\(menu.count)"
-
-        return cell
-    }
-}
+//extension MenuViewController: UITableViewDataSource {
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//      return viewModel.menu.count
+//    }
+//
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
+//
+//      let menu = viewModel.menus[indexPath.row]
+//
+//        return cell
+//    }
+//}
