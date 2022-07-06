@@ -65,6 +65,7 @@ class MenuViewController: UIViewController {
     @IBOutlet var totalPrice: UILabel!
 
     @IBAction func onClear() {
+      viewModel.clearAllItemSelections()
     }
 
     @IBAction func onOrder(_ sender: UIButton) {
@@ -73,7 +74,8 @@ class MenuViewController: UIViewController {
 //        performSegue(withIdentifier: "OrderViewController", sender: nil)
 
       viewModel.menuObservable.onNext([
-        Menu(name: "changed", price: 100, count: 2)
+        Menu(name: "changed", price: 100, count: 2),
+        Menu(name: "haha", price: 100, count: 3),
       ])
     }
 }
