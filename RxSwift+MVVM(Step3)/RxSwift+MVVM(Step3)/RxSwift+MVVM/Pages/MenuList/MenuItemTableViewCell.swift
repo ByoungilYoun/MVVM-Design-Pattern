@@ -9,13 +9,20 @@
 import UIKit
 
 class MenuItemTableViewCell: UITableViewCell {
-    @IBOutlet var title: UILabel!
-    @IBOutlet var count: UILabel!
-    @IBOutlet var price: UILabel!
-
-    @IBAction func onIncreaseCount() {
-    }
-
-    @IBAction func onDecreaseCount() {
-    }
+  
+  //MARK: - Properties
+  @IBOutlet var title: UILabel!
+  @IBOutlet var count: UILabel!
+  @IBOutlet var price: UILabel!
+  
+  var onChange : ((Int) -> Void)?
+  
+  //MARK: - @objc func
+  @IBAction func onIncreaseCount() {
+    onChange?(+1)
+  }
+  
+  @IBAction func onDecreaseCount() {
+    onChange?(-1)
+  }
 }
