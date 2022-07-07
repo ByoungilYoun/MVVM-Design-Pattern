@@ -8,11 +8,12 @@
 
 import Foundation
 import RxSwift
+import RxRelay
 
 class MenuListViewModel {
   
   //MARK: - Property
-  lazy var menuObservable = BehaviorSubject<[Menu]>(value: [])
+  lazy var menuObservable = BehaviorRelay<[Menu]>(value: [])
   
   lazy var itemsCount = menuObservable.map {
     $0.map { $0.count }.reduce(0, +)
@@ -25,14 +26,25 @@ class MenuListViewModel {
   
   //MARK: - Init
   init() {
-    let menus : [Menu] = [
-      Menu(id : 0, name: "튀김1", price: 100, count: 0),
-      Menu(id : 1, name: "튀김1", price: 100, count: 0),
-      Menu(id : 2, name: "튀김1", price: 100, count: 0),
-      Menu(id : 3, name: "튀김1", price: 100, count: 0)
-    ]
-    
-    menuObservable.onNext(menus)
+    _ = APIService.fetchAllMenusRx()
+      .map { data -> [MenuItem] in
+        struct Response : Decodable {
+          let menus : [MenuItem]
+        }
+        
+        let response = try! JSONDecoder().decode(Response.self, from: data)
+        return response.menus
+      }
+      .map { menuItems -> [Menu] in
+        var menus : [Menu] = []
+        menuItems.enumerated().forEach { (index, item) in
+          let menu = Menu.fromMenuItems(id: index, item: item)
+          menus.append(menu)
+        }
+        return menus
+      }
+      .take(1)
+      .bind(to: menuObservable)
   }
   
   //MARK: - Functions
@@ -50,7 +62,7 @@ class MenuListViewModel {
       }
       .take(1)
       .subscribe(onNext: {
-        self.menuObservable.onNext($0)
+        self.menuObservable.accept($0)
       })
   }
   
@@ -67,7 +79,7 @@ class MenuListViewModel {
       }
       .take(1)
       .subscribe(onNext: {
-        self.menuObservable.onNext($0)
+        self.menuObservable.accept($0)
       })
   }
 }

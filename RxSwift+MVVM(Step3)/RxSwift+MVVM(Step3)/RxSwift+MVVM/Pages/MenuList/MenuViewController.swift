@@ -43,7 +43,9 @@ class MenuViewController: UIViewController {
     
     viewModel.itemsCount
       .map { "\($0)" }
-      .bind(to: itemCountLabel.rx.text)
+      .asDriver(onErrorJustReturn: "")
+      .drive(itemCountLabel.rx.text)
+//      .bind(to: itemCountLabel.rx.text)
       .disposed(by: disposeBag)
     
     viewModel.totalPrice
